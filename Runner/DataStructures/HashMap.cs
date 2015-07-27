@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace DataStructures
@@ -9,7 +10,7 @@ namespace DataStructures
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
-    public class HashMap<TKey, TValue>
+    public class HashMap<TKey, TValue> : IEnumerable
     {
         // Core information about the Hash Map.
         private LinkedList<KeyValuePair>[] _coreArray;
@@ -58,6 +59,8 @@ namespace DataStructures
             // If the key is not found, append it to the end of the underlying linked list.
             _coreArray[hashedKey].Add(keyValuePair);
             Count++;
+
+            if (Count == _coreArraySize) ResizeCore();
         }
 
         /// <summary>
@@ -79,10 +82,57 @@ namespace DataStructures
             return null;
         }
 
+        /// <summary>
+        /// On occasion the Hash Map's core array gets too dense, so we expand it.
+        /// This means occasionally insertion is O(c) but we double the core size
+        /// so that we can accommodate rapid growth of the Hash Map.
+        /// </summary>
+        private void ResizeCore()
+        {
+            _coreArraySize *= 2;
+            var newCore = new LinkedList<KeyValuePair>[_coreArraySize];
+
+            for (int i = 0; i < _coreArraySize; i++) newCore[i] = new LinkedList<KeyValuePair>();
+
+            foreach (var container in _coreArray)
+            {
+                foreach (KeyValuePair keyValueEntry in container)
+                {
+                    int hashedValue = keyValueEntry.Key.GetHashCode() % _coreArraySize;
+
+                    newCore[hashedValue].Add(keyValueEntry);
+                }
+            }
+
+            _coreArray = newCore;
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
         private class KeyValuePair
         {
             public TKey Key { get; set; }
             public TValue Value { get; set; }
+        }
+
+        private class HashMapEnumerator : IEnumerator
+        {
+
+
+            public bool MoveNext()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
+
+            public object Current { get; private set; }
         }
     }
 }
