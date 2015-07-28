@@ -38,8 +38,8 @@ namespace DataStructures
 
         public void Put(TKey key, TValue value)
         {
-            int hashedKey = key.GetHashCode() % _coreArraySize;
-
+            int hashedKey = Math.Abs(key.GetHashCode() % _coreArraySize);
+            
             var keyValuePair = new KeyValuePair()
             {
                 Key = key,
@@ -70,7 +70,7 @@ namespace DataStructures
         /// <returns>Returns the value associated with the key. Null if the key is not found.</returns>
         public object GetValue(TKey key)
         {
-            int hashedKey = key.GetHashCode() % _coreArraySize;
+            int hashedKey = Math.Abs(key.GetHashCode() % _coreArraySize);
 
             // Go the to linked list where this key is potentially stored and try to find it.
             foreach (KeyValuePair keyValueEntry in _coreArray[hashedKey])
@@ -98,7 +98,7 @@ namespace DataStructures
             {
                 foreach (KeyValuePair keyValueEntry in container)
                 {
-                    int hashedValue = keyValueEntry.Key.GetHashCode() % _coreArraySize;
+                    int hashedValue = Math.Abs(keyValueEntry.Key.GetHashCode() % _coreArraySize);
 
                     newCore[hashedValue].Add(keyValueEntry);
                 }
@@ -109,7 +109,7 @@ namespace DataStructures
 
         public IEnumerator GetEnumerator()
         {
-            throw new NotImplementedException();
+            return new HashMapEnumerator(_coreArray, _coreArraySize);
         }
 
         private class KeyValuePair
@@ -120,19 +120,55 @@ namespace DataStructures
 
         private class HashMapEnumerator : IEnumerator
         {
+            private readonly LinkedList<KeyValuePair>[] _coreArray; 
+            private LinkedList<KeyValuePair> _currentList;
+            private IEnumerator _currentListEnumerator;
+            private Int32 _currentContainer;
+            private readonly Int32 _coreArraySize;
 
+            public HashMapEnumerator(LinkedList<KeyValuePair>[] coreArray, Int32 coreArraySize)
+            {
+                _coreArray = coreArray;
+                _currentList = null;
+                _currentContainer = -1;
+                _coreArraySize = coreArraySize;
+            }
 
             public bool MoveNext()
             {
-                throw new NotImplementedException();
+                while (_currentList == null || _currentList.Count == 0)
+                {
+                    _currentContainer++;
+                    if (_currentContainer == _coreArraySize) return false;
+                    
+                    _currentList = _coreArray[_currentContainer];
+                    _currentListEnumerator = _currentList.GetEnumerator();
+                }
+
+                var currentListHasNextElement = _currentListEnumerator.MoveNext();
+                
+                if (currentListHasNextElement)
+                {
+                    return true;
+                }
+                
+                if (_currentContainer < _coreArraySize - 1)
+                {
+                    _currentContainer++;
+                    _currentList = _coreArray[_currentContainer];
+                    _currentListEnumerator = _currentList.GetEnumerator();
+                    return MoveNext();
+                }
+
+                return false;
             }
 
             public void Reset()
             {
-                throw new NotImplementedException();
+                _currentContainer = -1;
             }
 
-            public object Current { get; private set; }
+            public object Current { get { return _currentListEnumerator.Current; } }
         }
     }
 }

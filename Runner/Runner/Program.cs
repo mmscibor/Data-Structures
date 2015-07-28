@@ -16,6 +16,15 @@ namespace Runner
                 Console.WriteLine(entry);
             }
 
+            var hashMap = new HashMap<String, Int32>();
+            hashMap.Put("mike", 4);
+            hashMap.Put("chris", 7);
+
+            foreach (var keyValuePair in hashMap)
+            {
+                Console.WriteLine(keyValuePair);
+            }
+
             Console.Read();
         }
     }
