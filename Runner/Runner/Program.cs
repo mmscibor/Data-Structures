@@ -20,9 +20,18 @@ namespace Runner
             hashMap.Put("mike", 4);
             hashMap.Put("chris", 7);
 
+            Console.WriteLine("KEY: 'mike'\t VALUE:{0}", hashMap.GetValue("mike"));
+
             foreach (var keyValuePair in hashMap)
             {
                 Console.WriteLine(keyValuePair);
+            }
+
+            var tree = new Tree<int> {4, 6, 9, 2};
+
+            foreach (var value in tree)
+            {
+                Console.Write("{0}\t", value);
             }
 
             Console.Read();
